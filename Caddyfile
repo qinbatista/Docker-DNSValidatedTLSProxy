@@ -1,13 +1,14 @@
 # DNS-01 validation avoids port 80 and this proxy deliberately listens on 8443,
 # leaving the host's existing port 443 and containers untouched.
-{
-	email {$ACME_EMAIL}
-}
-
-https://{$TLS_HOSTNAME}:{$PUBLIC_HTTPS_PORT} {
+https://qyp.life:{$PUBLIC_HTTPS_PORT}, https://*.qyp.life:{$PUBLIC_HTTPS_PORT} {
 	tls {
 		dns route53
 	}
 
-	reverse_proxy {$UPSTREAM_CONTAINER_NAME}:{$UPSTREAM_PORT}
+	@video host {$TLS_HOSTNAME}
+	handle @video {
+		reverse_proxy {$UPSTREAM_CONTAINER_NAME}:{$UPSTREAM_PORT}
+	}
+
+	respond "Not found" 404
 }

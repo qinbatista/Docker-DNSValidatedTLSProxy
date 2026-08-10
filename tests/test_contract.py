@@ -17,7 +17,8 @@ class ProxyContractTests(unittest.TestCase):
         caddyfile = (PROJECT_ROOT / "Caddyfile").read_text()
 
         self.assertIn("dns route53", caddyfile)
-        self.assertIn("https://{$TLS_HOSTNAME}:{$PUBLIC_HTTPS_PORT}", caddyfile)
+        self.assertIn("https://qyp.life:{$PUBLIC_HTTPS_PORT}, https://*.qyp.life:{$PUBLIC_HTTPS_PORT}", caddyfile)
+        self.assertIn("@video host {$TLS_HOSTNAME}", caddyfile)
 
     def test_compose_avoids_port_443_and_reuses_existing_network(self) -> None:
         compose_file = (PROJECT_ROOT / "compose.yaml").read_text()
