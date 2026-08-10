@@ -2,7 +2,7 @@
 
 This is a separate Docker Compose project for the existing `video-url-download` service. It builds Caddy with the Route 53 DNS module, obtains certificates for `qyp.life` and `*.qyp.life` through ACME DNS-01, and proxies only `la.qyp.life` to `video-url-download:8787` over that service's existing Docker network.
 
-It does not change, recreate, or attach configuration to the upstream container. It does not bind host port `443`. The public endpoint is deliberately `https://la.qyp.life:8443`.
+It does not change, recreate, or attach configuration to the upstream container. It does not bind host port `443`. The public endpoint is deliberately `https://la.qyp.life:8443`, with a direct `8443`-to-`8443` mapping.
 
 HTTP-to-HTTPS redirects are disabled because this proxy intentionally publishes only port `8443`; the Pi's existing port-80 and port-443 services remain independent.
 

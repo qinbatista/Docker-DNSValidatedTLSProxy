@@ -13,7 +13,7 @@ services:
       XDG_CONFIG_HOME: /config
       XDG_DATA_HOME: /data
     ports:
-      - "${PUBLIC_BIND_ADDRESS:-0.0.0.0}:${PUBLIC_HTTPS_PORT:-8443}:8443"
+      - "${PUBLIC_BIND_ADDRESS:-0.0.0.0}:8443:8443"
     volumes:
       - caddy_data:/data
       - caddy_config:/config

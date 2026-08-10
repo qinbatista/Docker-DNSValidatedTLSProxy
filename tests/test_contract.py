@@ -18,14 +18,14 @@ class ProxyContractTests(unittest.TestCase):
 
         self.assertIn("dns route53", caddyfile)
         self.assertIn("auto_https disable_redirects", caddyfile)
-        self.assertIn("https://qyp.life:{$PUBLIC_HTTPS_PORT}, https://*.qyp.life:{$PUBLIC_HTTPS_PORT}", caddyfile)
+        self.assertIn("https://qyp.life:8443, https://*.qyp.life:8443", caddyfile)
         self.assertIn("@video host {$TLS_HOSTNAME}", caddyfile)
 
     def test_compose_avoids_port_443_and_reuses_existing_network(self) -> None:
         compose_file = (PROJECT_ROOT / "compose.yaml").read_text()
 
         self.assertNotIn('"443:443"', compose_file)
-        self.assertIn(':${PUBLIC_HTTPS_PORT:-8443}:8443"', compose_file)
+        self.assertIn(":8443:8443\"", compose_file)
         self.assertIn("external: true", compose_file)
         self.assertIn("video-url-download_default", compose_file)
 
