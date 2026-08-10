@@ -1,0 +1,37 @@
+name: la-dns-tls-proxy
+
+services:
+  proxy:
+    image: "${PROXY_IMAGE:-ghcr.io/qinbatista/la-dns-tls-proxy:latest}"
+    build:
+      context: .
+    container_name: la-dns-tls-proxy
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      XDG_CONFIG_HOME: /config
+      XDG_DATA_HOME: /data
+    ports:
+      - "${PUBLIC_BIND_ADDRESS:-0.0.0.0}:${PUBLIC_HTTPS_PORT:-8443}:8443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - video_url_download
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  video_url_download:
+    external: true
+    name: "${UPSTREAM_NETWORK:-video-url-download_default}"
