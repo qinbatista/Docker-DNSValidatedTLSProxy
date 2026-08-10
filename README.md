@@ -4,6 +4,8 @@ This is a separate Docker Compose project for the existing `video-url-download` 
 
 It does not change, recreate, or attach configuration to the upstream container. It does not bind host port `443`. The public endpoint is deliberately `https://la.qyp.life:8443`.
 
+HTTP-to-HTTPS redirects are disabled because this proxy intentionally publishes only port `8443`; the Pi's existing port-80 and port-443 services remain independent.
+
 ## Requirements
 
 - The existing `video-url-download_default` Docker network and `video-url-download` container must already exist on the Pi.

@@ -17,6 +17,7 @@ class ProxyContractTests(unittest.TestCase):
         caddyfile = (PROJECT_ROOT / "Caddyfile").read_text()
 
         self.assertIn("dns route53", caddyfile)
+        self.assertIn("auto_https disable_redirects", caddyfile)
         self.assertIn("https://qyp.life:{$PUBLIC_HTTPS_PORT}, https://*.qyp.life:{$PUBLIC_HTTPS_PORT}", caddyfile)
         self.assertIn("@video host {$TLS_HOSTNAME}", caddyfile)
 

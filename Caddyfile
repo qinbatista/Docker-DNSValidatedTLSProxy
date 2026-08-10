@@ -1,5 +1,9 @@
 # DNS-01 validation avoids port 80 and this proxy deliberately listens on 8443,
 # leaving the host's existing port 443 and containers untouched.
+{
+	auto_https disable_redirects
+}
+
 https://qyp.life:{$PUBLIC_HTTPS_PORT}, https://*.qyp.life:{$PUBLIC_HTTPS_PORT} {
 	tls {
 		dns route53
