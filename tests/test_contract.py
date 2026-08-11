@@ -12,6 +12,7 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("ARG ROUTE53_MODULE_VERSION=1.6.2", dockerfile)
         self.assertIn("FROM caddy:${CADDY_VERSION}-builder AS builder\n\nARG ROUTE53_MODULE_VERSION", dockerfile)
         self.assertIn("github.com/caddy-dns/route53@v${ROUTE53_MODULE_VERSION}", dockerfile)
+        self.assertIn("setcap -r /usr/bin/caddy", dockerfile)
 
     def test_caddy_uses_route53_dns_challenge(self) -> None:
         caddyfile = (PROJECT_ROOT / "Caddyfile").read_text()
