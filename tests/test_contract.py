@@ -19,7 +19,8 @@ class ProxyContractTests(unittest.TestCase):
 
         self.assertIn("dns route53", caddyfile)
         self.assertIn("auto_https disable_redirects", caddyfile)
-        self.assertIn("https://qyp.life:8443, https://*.qyp.life:8443", caddyfile)
+        self.assertIn("https://la.qyp.life:8443", caddyfile)
+        self.assertNotIn("*.qyp.life", caddyfile)
         self.assertIn("@video host {$TLS_HOSTNAME}", caddyfile)
 
     def test_compose_avoids_port_443_and_reuses_existing_network(self) -> None:

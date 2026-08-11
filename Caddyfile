@@ -4,7 +4,10 @@
 	auto_https disable_redirects
 }
 
-https://qyp.life:8443, https://*.qyp.life:8443 {
+# This endpoint needs a certificate for the single public downloader hostname.
+# Avoid issuing an unnecessary wildcard certificate, which creates concurrent
+# DNS-01 TXT challenges for the same record name.
+https://la.qyp.life:8443 {
 	tls {
 		dns route53
 	}
