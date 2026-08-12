@@ -5,6 +5,7 @@ export AWS_PAGER=""
 
 primary_record_name="${TLS_HOSTNAME:?TLS_HOSTNAME is required}"
 shortcut_record_name="${SHORTCUT_TLS_HOSTNAME:-shortcut.la.qyp.life}"
+shortcut_alias_record_name="${SHORTCUT_ALIAS_HOSTNAME:-media.la.qyp.life}"
 zone_name="${ROUTE53_ZONE_NAME:-qyp.life}"
 network_interface="${IPV6_INTERFACE:-eth0}"
 record_ttl="${IPV6_DDNS_TTL:-60}"
@@ -32,9 +33,15 @@ validate_positive_integer() {
 
 validate_dns_name "$primary_record_name"
 validate_dns_name "$shortcut_record_name"
+validate_dns_name "$shortcut_alias_record_name"
 validate_dns_name "$zone_name"
 validate_positive_integer "$record_ttl"
 validate_positive_integer "$update_interval"
+
+if [ "$shortcut_alias_record_name" = "$primary_record_name" ] || [ "$shortcut_alias_record_name" = "$shortcut_record_name" ]; then
+    printf '%s\n' "shortcut alias must be different from direct AAAA records" >&2
+    exit 2
+fi
 
 global_ipv6_address() {
     address_hex="$(awk -v target_interface="$network_interface" '
@@ -90,11 +97,40 @@ update_record() {
     printf '%s\n' "updated AAAA ${record_name}. -> ${address}"
 }
 
+update_alias_record() {
+    alias_target="${primary_record_name}."
+    if [ "$dry_run" = "true" ]; then
+        printf '%s\n' "dry-run CNAME ${shortcut_alias_record_name}. -> ${alias_target} TTL ${record_ttl}"
+        return 0
+    fi
+
+    zone_id="$(route53_zone_id)"
+    current_target="$(aws route53 list-resource-record-sets \
+        --hosted-zone-id "$zone_id" \
+        --start-record-name "${shortcut_alias_record_name}." \
+        --start-record-type CNAME \
+        --max-items 1 \
+        --query 'ResourceRecordSets[0].ResourceRecords[0].Value' \
+        --output text || true)"
+    if [ "$current_target" = "$alias_target" ]; then
+        printf '%s\n' "unchanged CNAME ${shortcut_alias_record_name}. -> ${alias_target}"
+        return 0
+    fi
+
+    change_batch="$(printf '{"Changes":[{"Action":"UPSERT","ResourceRecordSet":{"Name":"%s.","Type":"CNAME","TTL":%s,"ResourceRecords":[{"Value":"%s"}]}}]}' "$shortcut_alias_record_name" "$record_ttl" "$alias_target")"
+    aws route53 change-resource-record-sets \
+        --hosted-zone-id "$zone_id" \
+        --change-batch "$change_batch" \
+        --output text >/dev/null
+    printf '%s\n' "updated CNAME ${shortcut_alias_record_name}. -> ${alias_target}"
+}
+
 update_all_records() {
     update_record "$primary_record_name"
     if [ "$shortcut_record_name" != "$primary_record_name" ]; then
         update_record "$shortcut_record_name"
     fi
+    update_alias_record
 }
 
 while :; do

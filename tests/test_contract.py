@@ -21,8 +21,9 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("auto_https disable_redirects", caddyfile)
         self.assertIn("https://la.qyp.life:8443", caddyfile)
         self.assertIn("https://shortcut.la.qyp.life:8443", caddyfile)
+        self.assertIn("https://media.la.qyp.life:8443", caddyfile)
         self.assertNotIn("*.qyp.life", caddyfile)
-        self.assertIn("@video host la.qyp.life shortcut.la.qyp.life", caddyfile)
+        self.assertIn("@video host la.qyp.life shortcut.la.qyp.life media.la.qyp.life", caddyfile)
 
     def test_compose_avoids_port_443_and_reuses_existing_network(self) -> None:
         compose_file = (PROJECT_ROOT / "compose.yaml").read_text()
@@ -42,9 +43,10 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("ipv6_ddns:", compose_file)
         self.assertIn("amazon/aws-cli@sha256:", compose_file)
         self.assertIn("SHORTCUT_TLS_HOSTNAME", compose_file)
+        self.assertIn("SHORTCUT_ALIAS_HOSTNAME", compose_file)
         self.assertIn("update-ipv6-record", compose_file)
 
-    def test_ipv6_ddns_script_updates_only_the_matching_aaaa_record(self) -> None:
+    def test_ipv6_ddns_script_updates_direct_and_alias_records(self) -> None:
         script = (PROJECT_ROOT / "scripts" / "update-ipv6-record.sh").read_text()
 
         self.assertIn("/proc/net/if_inet6", script)
@@ -53,6 +55,9 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("change-resource-record-sets", script)
         self.assertIn("IPV6_DDNS_DRY_RUN", script)
         self.assertIn("SHORTCUT_TLS_HOSTNAME", script)
+        self.assertIn("SHORTCUT_ALIAS_HOSTNAME", script)
+        self.assertIn('"Type":"CNAME"', script)
+        self.assertIn("update_alias_record", script)
         self.assertIn('if [ "$run_once" = "true" ]; then', script)
 
     def test_workflow_publishes_arm64_image(self) -> None:
