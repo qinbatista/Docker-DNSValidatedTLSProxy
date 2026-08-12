@@ -31,6 +31,26 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("external: true", compose_file)
         self.assertIn("video-url-download_default", compose_file)
 
+    def test_host_network_fallback_keeps_8443_and_adds_ipv6_ddns(self) -> None:
+        compose_file = (PROJECT_ROOT / "compose.host-network.yaml").read_text()
+
+        self.assertNotIn('"443:443"', compose_file)
+        self.assertIn("network_mode: host", compose_file)
+        self.assertIn("UPSTREAM_CONTAINER_NAME: 127.0.0.1", compose_file)
+        self.assertIn('HOST_UPSTREAM_PORT:-8788', compose_file)
+        self.assertIn("ipv6_ddns:", compose_file)
+        self.assertIn("amazon/aws-cli:2", compose_file)
+        self.assertIn("update-ipv6-record", compose_file)
+
+    def test_ipv6_ddns_script_updates_only_the_matching_aaaa_record(self) -> None:
+        script = (PROJECT_ROOT / "scripts" / "update-ipv6-record.sh").read_text()
+
+        self.assertIn("/proc/net/if_inet6", script)
+        self.assertIn('"Type":"AAAA"', script)
+        self.assertIn("list-resource-record-sets", script)
+        self.assertIn("change-resource-record-sets", script)
+        self.assertIn("IPV6_DDNS_DRY_RUN", script)
+
     def test_workflow_publishes_arm64_image(self) -> None:
         workflow = (PROJECT_ROOT / ".github/workflows/publish-image.yml").read_text()
 

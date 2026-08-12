@@ -1,0 +1,62 @@
+name: la-dns-tls-proxy
+
+# Pi-only deployment for hosts where Docker does not publish IPv6 ports. Caddy
+# remains restricted by Caddyfile to :8443; it never binds the existing VPN on
+# :443. Host networking is required only so Caddy can listen on native IPv6.
+services:
+  proxy:
+    image: "${PROXY_IMAGE:-ghcr.io/qinbatista/la-dns-tls-proxy:latest}"
+    build:
+      context: .
+    container_name: la-dns-tls-proxy
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      XDG_CONFIG_HOME: /config
+      XDG_DATA_HOME: /data
+      UPSTREAM_CONTAINER_NAME: 127.0.0.1
+      UPSTREAM_PORT: "${HOST_UPSTREAM_PORT:-8788}"
+    network_mode: host
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  ipv6_ddns:
+    image: "amazon/aws-cli:2"
+    container_name: la-ipv6-ddns
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      TLS_HOSTNAME: "${TLS_HOSTNAME}"
+      ROUTE53_ZONE_NAME: "${ROUTE53_ZONE_NAME:-qyp.life}"
+      IPV6_INTERFACE: "${IPV6_INTERFACE:-eth0}"
+      IPV6_DDNS_TTL: "${IPV6_DDNS_TTL:-60}"
+      IPV6_DDNS_INTERVAL_SECONDS: "${IPV6_DDNS_INTERVAL_SECONDS:-60}"
+    # It opens no port. Host networking makes /proc/net/if_inet6 describe the
+    # Pi itself, whose delegated IPv6 prefix can change at any time.
+    network_mode: host
+    volumes:
+      - ./scripts/update-ipv6-record.sh:/usr/local/bin/update-ipv6-record:ro
+    entrypoint:
+      - /bin/sh
+      - /usr/local/bin/update-ipv6-record
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  caddy_data:
+  caddy_config:
