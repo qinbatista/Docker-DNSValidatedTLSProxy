@@ -4,15 +4,15 @@
 	auto_https disable_redirects
 }
 
-# This endpoint needs a certificate for the single public downloader hostname.
-# Avoid issuing an unnecessary wildcard certificate, which creates concurrent
-# DNS-01 TXT challenges for the same record name.
-https://la.qyp.life:8443 {
+# These two hostnames avoid stale negative AAAA caches on previously configured
+# clients while keeping the public downloader endpoint on port 8443. Avoid a
+# wildcard certificate, which creates concurrent DNS-01 TXT challenges.
+https://la.qyp.life:8443, https://shortcut.la.qyp.life:8443 {
 	tls {
 		dns route53
 	}
 
-	@video host {$TLS_HOSTNAME}
+	@video host la.qyp.life shortcut.la.qyp.life
 	handle @video {
 		reverse_proxy {$UPSTREAM_CONTAINER_NAME}:{$UPSTREAM_PORT}
 	}

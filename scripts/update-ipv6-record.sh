@@ -3,7 +3,8 @@ set -eu
 
 export AWS_PAGER=""
 
-record_name="${TLS_HOSTNAME:?TLS_HOSTNAME is required}"
+primary_record_name="${TLS_HOSTNAME:?TLS_HOSTNAME is required}"
+shortcut_record_name="${SHORTCUT_TLS_HOSTNAME:-shortcut.la.qyp.life}"
 zone_name="${ROUTE53_ZONE_NAME:-qyp.life}"
 network_interface="${IPV6_INTERFACE:-eth0}"
 record_ttl="${IPV6_DDNS_TTL:-60}"
@@ -29,7 +30,8 @@ validate_positive_integer() {
     esac
 }
 
-validate_dns_name "$record_name"
+validate_dns_name "$primary_record_name"
+validate_dns_name "$shortcut_record_name"
 validate_dns_name "$zone_name"
 validate_positive_integer "$record_ttl"
 validate_positive_integer "$update_interval"
@@ -60,6 +62,7 @@ route53_zone_id() {
 }
 
 update_record() {
+    record_name="$1"
     address="$(global_ipv6_address)"
     if [ "$dry_run" = "true" ]; then
         printf '%s\n' "dry-run AAAA ${record_name}. -> ${address} TTL ${record_ttl}"
@@ -87,8 +90,15 @@ update_record() {
     printf '%s\n' "updated AAAA ${record_name}. -> ${address}"
 }
 
+update_all_records() {
+    update_record "$primary_record_name"
+    if [ "$shortcut_record_name" != "$primary_record_name" ]; then
+        update_record "$shortcut_record_name"
+    fi
+}
+
 while :; do
-    if update_record; then
+    if update_all_records; then
         [ "$run_once" = "true" ] && exit 0
         sleep "$update_interval"
     else

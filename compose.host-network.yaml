@@ -32,13 +32,14 @@ services:
   ipv6_ddns:
     # Amazon's documented official AWS CLI v2 image uses the default/latest
     # tag; it does not publish a major-only `:2` tag.
-    image: "amazon/aws-cli:latest"
+    image: "amazon/aws-cli@sha256:fb09d91d0640088f15475d9a9366a215c88a24f9871ae0f6124bede0d2157e9a"
     container_name: la-ipv6-ddns
     restart: unless-stopped
     env_file:
       - .env
     environment:
       TLS_HOSTNAME: "${TLS_HOSTNAME}"
+      SHORTCUT_TLS_HOSTNAME: "${SHORTCUT_TLS_HOSTNAME:-shortcut.la.qyp.life}"
       ROUTE53_ZONE_NAME: "${ROUTE53_ZONE_NAME:-qyp.life}"
       IPV6_INTERFACE: "${IPV6_INTERFACE:-eth0}"
       IPV6_DDNS_TTL: "${IPV6_DDNS_TTL:-60}"
