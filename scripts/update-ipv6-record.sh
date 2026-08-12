@@ -99,10 +99,14 @@ update_all_records() {
 
 while :; do
     if update_all_records; then
-        [ "$run_once" = "true" ] && exit 0
+        if [ "$run_once" = "true" ]; then
+            exit 0
+        fi
         sleep "$update_interval"
     else
-        [ "$run_once" = "true" ] && exit 1
+        if [ "$run_once" = "true" ]; then
+            exit 1
+        fi
         sleep 15
     fi
 done

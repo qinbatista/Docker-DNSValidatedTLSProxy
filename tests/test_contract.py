@@ -53,6 +53,7 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("change-resource-record-sets", script)
         self.assertIn("IPV6_DDNS_DRY_RUN", script)
         self.assertIn("SHORTCUT_TLS_HOSTNAME", script)
+        self.assertIn('if [ "$run_once" = "true" ]; then', script)
 
     def test_workflow_publishes_arm64_image(self) -> None:
         workflow = (PROJECT_ROOT / ".github/workflows/publish-image.yml").read_text()
