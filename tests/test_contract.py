@@ -39,7 +39,7 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("UPSTREAM_CONTAINER_NAME: 127.0.0.1", compose_file)
         self.assertIn('HOST_UPSTREAM_PORT:-8788', compose_file)
         self.assertIn("ipv6_ddns:", compose_file)
-        self.assertIn("amazon/aws-cli:2", compose_file)
+        self.assertIn("amazon/aws-cli:latest", compose_file)
         self.assertIn("update-ipv6-record", compose_file)
 
     def test_ipv6_ddns_script_updates_only_the_matching_aaaa_record(self) -> None:

@@ -30,7 +30,9 @@ services:
       - no-new-privileges:true
 
   ipv6_ddns:
-    image: "amazon/aws-cli:2"
+    # Amazon's documented official AWS CLI v2 image uses the default/latest
+    # tag; it does not publish a major-only `:2` tag.
+    image: "amazon/aws-cli:latest"
     container_name: la-ipv6-ddns
     restart: unless-stopped
     env_file:
