@@ -5,7 +5,7 @@ export AWS_PAGER=""
 
 primary_record_name="${TLS_HOSTNAME:?TLS_HOSTNAME is required}"
 shortcut_record_name="${SHORTCUT_TLS_HOSTNAME:-shortcut.la.qyp.life}"
-shortcut_alias_record_name="${SHORTCUT_ALIAS_HOSTNAME:-media.la.qyp.life}"
+shortcut_alias_record_name="${SHORTCUT_ALIAS_HOSTNAME:-downloads.la.qyp.life}"
 zone_name="${ROUTE53_ZONE_NAME:-qyp.life}"
 network_interface="${IPV6_INTERFACE:-eth0}"
 record_ttl="${IPV6_DDNS_TTL:-60}"

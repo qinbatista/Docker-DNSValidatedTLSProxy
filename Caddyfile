@@ -5,15 +5,15 @@
 }
 
 # These endpoint names keep the public downloader on port 8443. The media
-# alias is a CNAME to the primary hostname, so a freshly joined home client
+# downloads alias is a CNAME to the primary hostname, so a freshly joined home client
 # receives both its IPv4 and IPv6 paths without waiting on a stale AAAA cache.
 # Avoid a wildcard certificate, which creates concurrent DNS-01 TXT challenges.
-https://la.qyp.life:8443, https://shortcut.la.qyp.life:8443, https://media.la.qyp.life:8443 {
+https://la.qyp.life:8443, https://shortcut.la.qyp.life:8443, https://downloads.la.qyp.life:8443 {
 	tls {
 		dns route53
 	}
 
-	@video host la.qyp.life shortcut.la.qyp.life media.la.qyp.life
+	@video host la.qyp.life shortcut.la.qyp.life downloads.la.qyp.life
 	handle @video {
 		reverse_proxy {$UPSTREAM_CONTAINER_NAME}:{$UPSTREAM_PORT}
 	}
