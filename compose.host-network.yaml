@@ -40,7 +40,7 @@ services:
     environment:
       TLS_HOSTNAME: "${TLS_HOSTNAME}"
       SHORTCUT_TLS_HOSTNAME: "${SHORTCUT_TLS_HOSTNAME:-shortcut.la.qyp.life}"
-      SHORTCUT_ALIAS_HOSTNAME: "${SHORTCUT_ALIAS_HOSTNAME:-downloads.la.qyp.life}"
+      SHORTCUT_ALIAS_HOSTNAME: "${SHORTCUT_ALIAS_HOSTNAME:-video-download.la.qyp.life}"
       ROUTE53_ZONE_NAME: "${ROUTE53_ZONE_NAME:-qyp.life}"
       IPV6_INTERFACE: "${IPV6_INTERFACE:-eth0}"
       IPV6_DDNS_TTL: "${IPV6_DDNS_TTL:-60}"

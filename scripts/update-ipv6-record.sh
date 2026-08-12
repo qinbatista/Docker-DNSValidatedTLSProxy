@@ -5,7 +5,7 @@ export AWS_PAGER=""
 
 primary_record_name="${TLS_HOSTNAME:?TLS_HOSTNAME is required}"
 shortcut_record_name="${SHORTCUT_TLS_HOSTNAME:-shortcut.la.qyp.life}"
-shortcut_alias_record_name="${SHORTCUT_ALIAS_HOSTNAME:-downloads.la.qyp.life}"
+shortcut_alias_record_name="${SHORTCUT_ALIAS_HOSTNAME:-video-download.la.qyp.life}"
 zone_name="${ROUTE53_ZONE_NAME:-qyp.life}"
 network_interface="${IPV6_INTERFACE:-eth0}"
 record_ttl="${IPV6_DDNS_TTL:-60}"
@@ -82,7 +82,7 @@ update_record() {
         --start-record-name "${record_name}." \
         --start-record-type AAAA \
         --max-items 1 \
-        --query 'ResourceRecordSets[0].ResourceRecords[0].Value' \
+        --query "ResourceRecordSets[?Name=='${record_name}.' && Type=='AAAA'].ResourceRecords[0].Value | [0]" \
         --output text || true)"
     if [ "$current_address" = "$address" ]; then
         printf '%s\n' "unchanged AAAA ${record_name}. -> ${address}"
@@ -110,7 +110,7 @@ update_alias_record() {
         --start-record-name "${shortcut_alias_record_name}." \
         --start-record-type CNAME \
         --max-items 1 \
-        --query 'ResourceRecordSets[0].ResourceRecords[0].Value' \
+        --query "ResourceRecordSets[?Name=='${shortcut_alias_record_name}.' && Type=='CNAME'].ResourceRecords[0].Value | [0]" \
         --output text || true)"
     if [ "$current_target" = "$alias_target" ]; then
         printf '%s\n' "unchanged CNAME ${shortcut_alias_record_name}. -> ${alias_target}"

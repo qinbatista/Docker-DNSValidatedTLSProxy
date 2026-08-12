@@ -21,9 +21,9 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("auto_https disable_redirects", caddyfile)
         self.assertIn("https://la.qyp.life:8443", caddyfile)
         self.assertIn("https://shortcut.la.qyp.life:8443", caddyfile)
-        self.assertIn("https://downloads.la.qyp.life:8443", caddyfile)
+        self.assertIn("https://video-download.la.qyp.life:8443", caddyfile)
         self.assertNotIn("*.qyp.life", caddyfile)
-        self.assertIn("@video host la.qyp.life shortcut.la.qyp.life downloads.la.qyp.life", caddyfile)
+        self.assertIn("@video host la.qyp.life shortcut.la.qyp.life video-download.la.qyp.life", caddyfile)
 
     def test_compose_avoids_port_443_and_reuses_existing_network(self) -> None:
         compose_file = (PROJECT_ROOT / "compose.yaml").read_text()
@@ -58,6 +58,7 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("SHORTCUT_ALIAS_HOSTNAME", script)
         self.assertIn('"Type":"CNAME"', script)
         self.assertIn("update_alias_record", script)
+        self.assertIn("ResourceRecordSets[?Name==", script)
         self.assertIn('if [ "$run_once" = "true" ]; then', script)
 
     def test_workflow_publishes_arm64_image(self) -> None:
