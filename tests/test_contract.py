@@ -20,10 +20,8 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("dns route53", caddyfile)
         self.assertIn("auto_https disable_redirects", caddyfile)
         self.assertIn("https://la.qyp.life:8443", caddyfile)
-        self.assertIn("https://shortcut.la.qyp.life:8443", caddyfile)
-        self.assertIn("https://video-download.la.qyp.life:8443", caddyfile)
         self.assertNotIn("*.qyp.life", caddyfile)
-        self.assertIn("@video host la.qyp.life shortcut.la.qyp.life video-download.la.qyp.life", caddyfile)
+        self.assertIn("@video host {$TLS_HOSTNAME}", caddyfile)
 
     def test_compose_avoids_port_443_and_reuses_existing_network(self) -> None:
         compose_file = (PROJECT_ROOT / "compose.yaml").read_text()
@@ -41,12 +39,10 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("UPSTREAM_CONTAINER_NAME: 127.0.0.1", compose_file)
         self.assertIn('HOST_UPSTREAM_PORT:-8788', compose_file)
         self.assertIn("ipv6_ddns:", compose_file)
-        self.assertIn("amazon/aws-cli@sha256:", compose_file)
-        self.assertIn("SHORTCUT_TLS_HOSTNAME", compose_file)
-        self.assertIn("SHORTCUT_ALIAS_HOSTNAME", compose_file)
+        self.assertIn("amazon/aws-cli:latest", compose_file)
         self.assertIn("update-ipv6-record", compose_file)
 
-    def test_ipv6_ddns_script_updates_direct_and_alias_records(self) -> None:
+    def test_ipv6_ddns_script_updates_only_the_matching_aaaa_record(self) -> None:
         script = (PROJECT_ROOT / "scripts" / "update-ipv6-record.sh").read_text()
 
         self.assertIn("/proc/net/if_inet6", script)
@@ -54,12 +50,6 @@ class ProxyContractTests(unittest.TestCase):
         self.assertIn("list-resource-record-sets", script)
         self.assertIn("change-resource-record-sets", script)
         self.assertIn("IPV6_DDNS_DRY_RUN", script)
-        self.assertIn("SHORTCUT_TLS_HOSTNAME", script)
-        self.assertIn("SHORTCUT_ALIAS_HOSTNAME", script)
-        self.assertIn('"Type":"CNAME"', script)
-        self.assertIn("update_alias_record", script)
-        self.assertIn("ResourceRecordSets[?Name==", script)
-        self.assertIn('if [ "$run_once" = "true" ]; then', script)
 
     def test_workflow_publishes_arm64_image(self) -> None:
         workflow = (PROJECT_ROOT / ".github/workflows/publish-image.yml").read_text()
