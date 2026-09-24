@@ -12,7 +12,7 @@ FROM caddy:${CADDY_VERSION}
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
 # The proxy only listens on 8443. Remove the base-image capability so Caddy can
 # start with every Linux capability dropped and no-new-privileges enabled.
-RUN setcap -r /usr/bin/caddy
+RUN caps="$(getcap /usr/bin/caddy)"; if [ -n "$caps" ]; then setcap -r /usr/bin/caddy; fi
 COPY Caddyfile /etc/caddy/Caddyfile
 
 EXPOSE 8443
